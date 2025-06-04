@@ -14,6 +14,7 @@ namespace LordsMobile
         public static string[] instances;
         public static Process[] processes;
         private static String installPath = "C:\\Program Files (x86)\\Nox\\bin";
+        private static string adbPath = @"C:\Program Files (x86)\Nox\bin\adb.exe";
         private static List<List<string>> vms = new List<List<string>>();
         private static List<string> allowedVMs = new List<string>();
         private static int runningVMs = 0;
@@ -93,8 +94,67 @@ namespace LordsMobile
             resizeWindow(vmInd);
             Thread.Sleep(500);
             instances[vmInd] = vm;
-
+            Thread.Sleep(2000);
+            StartAdbServer();
+            if (CheckAdbDevice())
+                Console.WriteLine("Device found.");
             return vmInd;
+        }
+
+        private static void StartAdbServer()
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = adbPath,
+                    Arguments = "start-server",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (Process proc = Process.Start(psi))
+                {
+                    string output = proc.StandardOutput.ReadToEnd();
+                    string error = proc.StandardError.ReadToEnd();
+                    proc.WaitForExit();
+
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        Console.WriteLine("ADB erro: " + error);
+                    }
+                    else
+                    {
+                        Console.WriteLine("ADB iniciou: " + output);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao iniciar o ADB: " + ex.Message);
+            }
+        }
+
+        private static bool CheckAdbDevice()
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = adbPath,
+                Arguments = "devices",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process proc = Process.Start(psi))
+            {
+                string output = proc.StandardOutput.ReadToEnd();
+                proc.WaitForExit();
+
+                return output.Contains("\tdevice");
+            }
         }
 
         public static void resizeWindow(int vmInd)

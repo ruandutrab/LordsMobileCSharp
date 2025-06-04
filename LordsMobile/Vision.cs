@@ -10,6 +10,7 @@ using Tesseract;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace LordsMobile
 {
@@ -50,24 +51,123 @@ namespace LordsMobile
         }
 
 
-
+        //private Image<Bgr, byte> scr = null;
+        //private Image<Gray, byte> frame = null;
 
         private void captureScreen()
         {
-            if (frame != null)
-                frame.Dispose();
+            string adbPath = @"C:\Program Files (x86)\Nox\bin\adb.exe"; // ajuste aqui
 
-            if (scr != null)
-                scr.Dispose();
+            string deviceId = GetFirstOnlineAdbDevice(adbPath); // busca o ID de um dispositivo online
 
-            Bitmap printscreen = PrintWindow();
-            Image<Bgr, Byte> imageCV = new Image<Bgr, Byte>(printscreen);
-            scr = imageCV;
-            frame = imageCV.Convert<Gray, byte>();
-            frame = frame.ThresholdBinary(new Gray(150), new Gray(255.0));
-            imageCV.Dispose();
-            printscreen.Dispose();
+            if (string.IsNullOrEmpty(deviceId))
+            {
+                Console.WriteLine("Nenhum dispositivo ADB online encontrado.");
+                return;
+            }
+
+            // Captura a imagem diretamente do ADB
+            byte[] imageBytes = CaptureScreenFromAdbInMemory(adbPath, deviceId);
+
+            if (imageBytes == null || imageBytes.Length == 0)
+            {
+                Console.WriteLine("Falha ao capturar a tela via ADB.");
+                return;
+            }
+
+            // Libera imagens anteriores
+            frame?.Dispose();
+            scr?.Dispose();
+
+            using (MemoryStream ms = new MemoryStream(imageBytes))
+            {
+                Bitmap bmp = new Bitmap(ms);
+                Image<Bgr, byte> imageCV = new Image<Bgr, byte>(bmp);
+
+                scr = imageCV;
+                frame = imageCV.Convert<Gray, byte>();
+                imageCV.ToBitmap().Save("screens\\screenshot-processed" + new Random().Next(99999) + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                frame = frame.ThresholdBinary(new Gray(150), new Gray(255.0));
+
+                bmp.Dispose();
+            }
         }
+
+        private byte[] CaptureScreenFromAdbInMemory(string adbPath, string deviceId)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = adbPath,
+                    Arguments = $"-s {deviceId} exec-out screencap -p",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (Process proc = Process.Start(psi))
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    proc.StandardOutput.BaseStream.CopyTo(ms);
+                    proc.WaitForExit();
+                    return ms.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao capturar imagem via ADB: " + ex.Message);
+                return null;
+            }
+        }
+
+        private static string GetFirstOnlineAdbDevice(string adbPath)
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = adbPath,
+                Arguments = "devices",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process proc = Process.Start(psi))
+            {
+                string output = proc.StandardOutput.ReadToEnd();
+                proc.WaitForExit();
+
+                var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var line in lines)
+                {
+                    if (line.Contains("\tdevice") && !line.StartsWith("List of"))
+                    {
+                        return line.Split('\t')[0].Trim();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+
+        //private void captureScreen()
+        //{
+        //    if (frame != null)
+        //        frame.Dispose();
+
+        //    if (scr != null)
+        //        scr.Dispose();
+
+        //    Bitmap printscreen = PrintWindow();
+        //    Image<Bgr, Byte> imageCV = new Image<Bgr, Byte>(printscreen);
+        //    scr = imageCV;
+        //    frame = imageCV.Convert<Gray, byte>();
+        //    frame = frame.ThresholdBinary(new Gray(150), new Gray(255.0));
+        //    imageCV.Dispose();
+        //    printscreen.Dispose();
+        //}
 
         public Point matchTemplate(string template = null, double threshold = 0.35, bool max = false)
         {
