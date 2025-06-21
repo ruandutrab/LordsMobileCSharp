@@ -15,12 +15,12 @@ namespace LordsMobile
         public int CavT1 { get; set; }
         public int BalliT1 { get; set; }
     }
-    public class Troops
+    public class TroopsDB
     {
 
         private State state;
 
-        public Troops()
+        public TroopsDB()
         {
 
         }

@@ -214,7 +214,7 @@ namespace LordsMobile
                      */
                     if (state.v.ExistPoint(Assets.Barracks.barracks, 0.75))
                     {
-                        var troops = new Troops();
+                        var troops = new TroopsDB();
                         if (dtLastReadTroops <= DateTime.Now)
                         {
 
