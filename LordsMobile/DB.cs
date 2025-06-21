@@ -21,6 +21,7 @@ namespace LordsMobile
                 new SQLiteCommand("CREATE TABLE accounts (account VARCHAR(15) UNIQUE NOT NULL)", conn).ExecuteNonQuery();
                 new SQLiteCommand("CREATE TABLE talents (talent VARCHAR(40), level INT, account REFERENCES accounts(account))", conn).ExecuteNonQuery();
                 new SQLiteCommand("CREATE TABLE buildings (building VARCHAR(40), tile INT, level INT, account REFERENCES accounts(account))", conn).ExecuteNonQuery();
+                new SQLiteCommand("CREATE TABLE troopsAvailable (infT1 INT, archT1 INT, cavT1 INT, balliT1 INT, account REFERENCES accounts(account))", conn).ExecuteNonQuery();
             } else
             {
                 conn = new SQLiteConnection("Data Source=MaggotBot.sqlite");

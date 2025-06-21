@@ -28,7 +28,7 @@ namespace LordsMobile
             Thread.Sleep(1000);
             s.c.vClick(Statics.Hud.SETTINGS);
             s.c.vClick(Statics.Settings.Account.POINT);
-            this.accountNo = s.v.readText(Statics.Settings.Account.ROI);
+            this.accountNo = s.v.readText(Statics.Settings.Account.ROI).Replace("\n", "").Replace("\r", "");
             Thread.Sleep(500);
             getAccount();
         }
@@ -43,7 +43,7 @@ namespace LordsMobile
 
         private void addAccount()
         {
-            DB.insert("INSERT INTO accounts (account) VALUES (" + this.accountNo + ")");
+            DB.insert("INSERT INTO accounts (account) VALUES ('" + this.accountNo + "')");
         }
 
         class Building

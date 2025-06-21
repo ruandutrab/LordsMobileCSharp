@@ -37,7 +37,19 @@
             this.lvhID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.txtBallistas = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtCataphracts = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txtArchers = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtGrunts = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.txtYCoord = new System.Windows.Forms.TextBox();
             this.txtXCoord = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -64,25 +76,15 @@
             this.lstProfiles = new System.Windows.Forms.ListBox();
             this.pnlProfile = new System.Windows.Forms.Panel();
             this.ttpInstances = new System.Windows.Forms.ToolTip(this.components);
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.txtGrunts = new System.Windows.Forms.TextBox();
-            this.txtArchers = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.txtCataphracts = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.txtBallistas = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
+            this.lbLogs = new System.Windows.Forms.Label();
+            this.richTxtStatus = new System.Windows.Forms.RichTextBox();
             this.tabPage2.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabPage3.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabPage2
@@ -103,6 +105,7 @@
             this.lvhName,
             this.lvhID});
             this.lstMEmuProfiles.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lstMEmuProfiles.HideSelection = false;
             this.lstMEmuProfiles.Location = new System.Drawing.Point(6, 6);
             this.lstMEmuProfiles.Name = "lstMEmuProfiles";
             this.lstMEmuProfiles.Size = new System.Drawing.Size(720, 468);
@@ -161,6 +164,91 @@
             this.tabPage1.Text = "Main";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.txtBallistas);
+            this.groupBox3.Controls.Add(this.label10);
+            this.groupBox3.Controls.Add(this.txtCataphracts);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.txtArchers);
+            this.groupBox3.Controls.Add(this.label8);
+            this.groupBox3.Controls.Add(this.txtGrunts);
+            this.groupBox3.Controls.Add(this.label7);
+            this.groupBox3.Location = new System.Drawing.Point(6, 209);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(246, 65);
+            this.groupBox3.TabIndex = 16;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Max Troop Settings";
+            // 
+            // txtBallistas
+            // 
+            this.txtBallistas.Location = new System.Drawing.Point(189, 37);
+            this.txtBallistas.Name = "txtBallistas";
+            this.txtBallistas.Size = new System.Drawing.Size(51, 20);
+            this.txtBallistas.TabIndex = 7;
+            this.txtBallistas.Text = "1000";
+            // 
+            // label10
+            // 
+            this.label10.Location = new System.Drawing.Point(189, 20);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(51, 14);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "Ballista";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtCataphracts
+            // 
+            this.txtCataphracts.Location = new System.Drawing.Point(129, 37);
+            this.txtCataphracts.Name = "txtCataphracts";
+            this.txtCataphracts.Size = new System.Drawing.Size(51, 20);
+            this.txtCataphracts.TabIndex = 5;
+            this.txtCataphracts.Text = "1000";
+            // 
+            // label9
+            // 
+            this.label9.Location = new System.Drawing.Point(129, 20);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(51, 14);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "Cataph...";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtArchers
+            // 
+            this.txtArchers.Location = new System.Drawing.Point(69, 37);
+            this.txtArchers.Name = "txtArchers";
+            this.txtArchers.Size = new System.Drawing.Size(51, 20);
+            this.txtArchers.TabIndex = 3;
+            this.txtArchers.Text = "1000";
+            // 
+            // label8
+            // 
+            this.label8.Location = new System.Drawing.Point(69, 20);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(51, 14);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Archer";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtGrunts
+            // 
+            this.txtGrunts.Location = new System.Drawing.Point(9, 37);
+            this.txtGrunts.Name = "txtGrunts";
+            this.txtGrunts.Size = new System.Drawing.Size(51, 20);
+            this.txtGrunts.TabIndex = 1;
+            this.txtGrunts.Text = "1000";
+            // 
+            // label7
+            // 
+            this.label7.Location = new System.Drawing.Point(9, 20);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(51, 14);
+            this.label7.TabIndex = 0;
+            this.label7.Text = "Grunt";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.label6);
@@ -180,6 +268,33 @@
             this.groupBox2.TabIndex = 15;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Account Settings";
+            // 
+            // label6
+            // 
+            this.label6.Location = new System.Drawing.Point(205, 67);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 23);
+            this.label6.TabIndex = 18;
+            this.label6.Text = "Y";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(168, 67);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(35, 23);
+            this.label5.TabIndex = 17;
+            this.label5.Text = "X";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(131, 67);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(35, 23);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "K";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // txtYCoord
             // 
@@ -276,7 +391,7 @@
             this.txtNoInstances.Name = "txtNoInstances";
             this.txtNoInstances.Size = new System.Drawing.Size(108, 20);
             this.txtNoInstances.TabIndex = 0;
-            this.txtNoInstances.Text = "4";
+            this.txtNoInstances.Text = "1";
             // 
             // txtTimeOnAccount
             // 
@@ -412,141 +527,52 @@
             this.pnlProfile.Size = new System.Drawing.Size(492, 459);
             this.pnlProfile.TabIndex = 0;
             // 
-            // label4
+            // lbLogs
             // 
-            this.label4.Location = new System.Drawing.Point(131, 67);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(35, 23);
-            this.label4.TabIndex = 16;
-            this.label4.Text = "K";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lbLogs.AutoSize = true;
+            this.lbLogs.Location = new System.Drawing.Point(16, 540);
+            this.lbLogs.Name = "lbLogs";
+            this.lbLogs.Size = new System.Drawing.Size(40, 13);
+            this.lbLogs.TabIndex = 1;
+            this.lbLogs.Text = "Status:";
             // 
-            // label5
+            // richTxtStatus
             // 
-            this.label5.Location = new System.Drawing.Point(168, 67);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(35, 23);
-            this.label5.TabIndex = 17;
-            this.label5.Text = "X";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label6
-            // 
-            this.label6.Location = new System.Drawing.Point(205, 67);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 23);
-            this.label6.TabIndex = 18;
-            this.label6.Text = "Y";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.txtBallistas);
-            this.groupBox3.Controls.Add(this.label10);
-            this.groupBox3.Controls.Add(this.txtCataphracts);
-            this.groupBox3.Controls.Add(this.label9);
-            this.groupBox3.Controls.Add(this.txtArchers);
-            this.groupBox3.Controls.Add(this.label8);
-            this.groupBox3.Controls.Add(this.txtGrunts);
-            this.groupBox3.Controls.Add(this.label7);
-            this.groupBox3.Location = new System.Drawing.Point(6, 209);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(246, 65);
-            this.groupBox3.TabIndex = 16;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Max Troop Settings";
-            // 
-            // label7
-            // 
-            this.label7.Location = new System.Drawing.Point(9, 20);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(51, 14);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "Grunt";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // txtGrunts
-            // 
-            this.txtGrunts.Location = new System.Drawing.Point(9, 37);
-            this.txtGrunts.Name = "txtGrunts";
-            this.txtGrunts.Size = new System.Drawing.Size(51, 20);
-            this.txtGrunts.TabIndex = 1;
-            this.txtGrunts.Text = "1000";
-            // 
-            // txtArchers
-            // 
-            this.txtArchers.Location = new System.Drawing.Point(69, 37);
-            this.txtArchers.Name = "txtArchers";
-            this.txtArchers.Size = new System.Drawing.Size(51, 20);
-            this.txtArchers.TabIndex = 3;
-            this.txtArchers.Text = "1000";
-            // 
-            // label8
-            // 
-            this.label8.Location = new System.Drawing.Point(69, 20);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(51, 14);
-            this.label8.TabIndex = 2;
-            this.label8.Text = "Archer";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // txtCataphracts
-            // 
-            this.txtCataphracts.Location = new System.Drawing.Point(129, 37);
-            this.txtCataphracts.Name = "txtCataphracts";
-            this.txtCataphracts.Size = new System.Drawing.Size(51, 20);
-            this.txtCataphracts.TabIndex = 5;
-            this.txtCataphracts.Text = "1000";
-            // 
-            // label9
-            // 
-            this.label9.Location = new System.Drawing.Point(129, 20);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(51, 14);
-            this.label9.TabIndex = 4;
-            this.label9.Text = "Cataph...";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // txtBallistas
-            // 
-            this.txtBallistas.Location = new System.Drawing.Point(189, 37);
-            this.txtBallistas.Name = "txtBallistas";
-            this.txtBallistas.Size = new System.Drawing.Size(51, 20);
-            this.txtBallistas.TabIndex = 7;
-            this.txtBallistas.Text = "1000";
-            // 
-            // label10
-            // 
-            this.label10.Location = new System.Drawing.Point(189, 20);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(51, 14);
-            this.label10.TabIndex = 6;
-            this.label10.Text = "Ballista";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.richTxtStatus.Location = new System.Drawing.Point(62, 537);
+            this.richTxtStatus.Multiline = false;
+            this.richTxtStatus.Name = "richTxtStatus";
+            this.richTxtStatus.ReadOnly = true;
+            this.richTxtStatus.Size = new System.Drawing.Size(281, 19);
+            this.richTxtStatus.TabIndex = 2;
+            this.richTxtStatus.Text = "";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(764, 530);
+            this.ClientSize = new System.Drawing.Size(764, 565);
+            this.Controls.Add(this.richTxtStatus);
+            this.Controls.Add(this.lbLogs);
             this.Controls.Add(this.tabControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.Text = "MaggotBot";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.tabPage2.ResumeLayout(false);
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabPage3.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -598,6 +624,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox txtGrunts;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lbLogs;
+        public System.Windows.Forms.RichTextBox richTxtStatus;
     }
 }
 

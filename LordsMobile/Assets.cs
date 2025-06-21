@@ -23,9 +23,10 @@ namespace LordsMobile
         public class Chest
         {
             private const string chest = "assets\\chest\\";
-            public const string x5 = chest + "5x.jpg";
+            public const string chestOpen = chest + "chest.jpg";
             public const string Collect = chest + "collect.jpg";
             public const string Window = chest + "window.jpg";
+            public const string x5 = chest + "5x.jpg";
         }
 
         public class Development
@@ -135,6 +136,94 @@ namespace LordsMobile
                 res + "gold.jpg",
                 res + "gold2.jpg"
             };
+        }
+
+        public class Attack
+        {
+            private const string attack = "assets\\attack\\";
+            public const string being_attacked = attack + "being_attacked.jpg";
+            public const string refuge = attack + "refuge.jpg";
+            public const string enter = attack + "enter.jpg";
+            public const string shelter_trops = attack + "shelter_trops.jpg";
+            public const string confirm_shelter = attack + "confirm_shelter.jpg";
+            // if have shields
+            public const string painel_shield = attack + "painel_shield.jpg";
+            public const string use_shield = attack + "use_shield.jpg";
+        }
+
+        public class Help
+        {
+            private const string path = "assets\\send_help\\";
+            public const string help = path + "send_help.jpg";
+            public const string help3x = path + "send_help_3x.jpg";
+            public const string help_all = path + "help_all.jpg";
+        }
+
+        public class Painel
+        {
+            private const string path = "assets\\painel\\";
+            public const string painel_finish_task = path + "painel_standby_task_finish.jpg";
+            public const string free_button = path + "finish_task.jpg";
+            public const string painel_Zzz = path + "painel_standby.jpg";
+            public const string construction = path + "construction_queue_is_idle.jpg";
+            public const string research = path + "research_is_idle.jpg";
+            public const string barracks = path + "barracks_is_idle.jpg";
+            public const string task_available = path + "task_available.jpg";
+        }
+
+        public class Construction
+        {
+            private const string path = "assets\\construction\\";
+            public const string building_upgrade = path + "building_upgrade.jpg";
+            public const string building_upgrade_2 = path + "building_upgrade_2.jpg";
+            public const string start_upgrade = path + "start_upgrade.jpg";
+            public const string complete_for_free = path + "complete_for_free.jpg";
+            public const string request_help = path + "request_help.jpg";
+            public const string material_not_available = path + "material_not_available.jpg";
+            public const string idle_upgrade = path + "idle_upgrade.jpg";
+        }
+
+        public class Research
+        {
+            private const string path = "assets\\research\\";
+            public const string academy = path + "academy.jpg";
+            public const string recommended = path + "research_avaliable.jpg";
+            public const string research_start = path + "research_start.jpg";
+            public const string material_not_available = path + "material_not_available.jpg";
+            public const string get_help = path + "get_help.jpg";
+        }
+
+        public class Barracks
+        {
+            private const string path = "assets\\barracks\\";
+            public const string barracks = path + "barracks.jpg";
+            public const string inf_t1 = path + "inf_t1.jpg";
+            public const string arch_t1 = path + "arch_t1.jpg";
+            public const string cav_t1 = path + "cav_t1.jpg";
+            public const string balli_t1 = path + "balli_t1.jpg";
+            public const string start_training = path + "start_training.jpg";
+            public const string material_not_available = path + "material_not_available.jpg";
+        }
+
+        public class Castle
+        {
+            private const string path = "assets\\castle\\";
+            public const string enter_castle = path + "enter_castle.jpg";
+        }
+
+        public class StartUp
+        {
+            private const string path = "assets\\startup\\";
+            public const string initial_screen = path + "initial_screen.jpg";
+        }
+
+        public class GuildGift
+        {
+            private const string path = "assets\\guild_gift\\";
+            public const string gift = path + "available_gift.jpg";
+            public const string enter_gift = path + "enter_gift.jpg";
+            public const string open_gift = path + "open_gift.jpg";
+            public const string clean_gift = path + "clean_gift.jpg";
         }
     }
 }

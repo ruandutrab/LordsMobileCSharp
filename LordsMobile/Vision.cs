@@ -10,13 +10,16 @@ using Tesseract;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
+using Emgu.CV.CvEnum;
 
 namespace LordsMobile
 {
     class Vision
     {
         private Image<Gray, Byte> frame;
+        private Image<Gray, Byte> frameSentinel;
         private Image<Bgr, Byte> scr;
+        private Image<Bgr, Byte> scrSentinel;
         private TesseractEngine tess = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
         private IntPtr hwnd;
 
@@ -28,6 +31,23 @@ namespace LordsMobile
         public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, int nFlags);
 
         public Bitmap PrintWindow()
+        {
+            RECT rc;
+            GetWindowRect(hwnd, out rc);
+
+            Bitmap bmp = new Bitmap(rc.Width, rc.Height, PixelFormat.Format32bppRgb);
+            Graphics gfxBmp = Graphics.FromImage(bmp);
+            IntPtr hdcBitmap = gfxBmp.GetHdc();
+
+            PrintWindow(hwnd, hdcBitmap, 0);
+
+            gfxBmp.ReleaseHdc(hdcBitmap);
+            gfxBmp.Dispose();
+
+            return bmp;
+        }
+
+        public Bitmap PrintWindowForSentiel()
         {
             RECT rc;
             GetWindowRect(hwnd, out rc);
@@ -64,49 +84,153 @@ namespace LordsMobile
             Image<Bgr, Byte> imageCV = new Image<Bgr, Byte>(printscreen);
             scr = imageCV;
             frame = imageCV.Convert<Gray, byte>();
-            frame = frame.ThresholdBinary(new Gray(150), new Gray(255.0));
+            frame.ToBitmap().Save("screens\\screenshot-processed" + new Random().Next(99999) + ".png", System.Drawing.Imaging.ImageFormat.Png);
+
             imageCV.Dispose();
             printscreen.Dispose();
         }
 
+
+        private void captureScreenForSentinel()
+        {
+            if (frameSentinel != null)
+                frameSentinel.Dispose();
+
+            if (scrSentinel != null)
+                scrSentinel.Dispose();
+
+            Bitmap printscreen = PrintWindowForSentiel();
+            Image<Bgr, Byte> imageCV = new Image<Bgr, Byte>(printscreen);
+            scrSentinel = imageCV;
+            frameSentinel = imageCV.Convert<Gray, byte>();
+            //frame.ToBitmap().Save("screens\\screenshot-processed" + new Random().Next(99999) + ".png", System.Drawing.Imaging.ImageFormat.Png);
+
+            imageCV.Dispose();
+            printscreen.Dispose();
+        }
+
+        public bool ExistPoint(string template, double threshold)
+        {
+            Point point = matchTemplate(template, threshold);
+            if (point.X > 0 && point.Y > 0)
+                return true;
+            else
+                return false;
+        }
+
+        //public Point matchTemplate(string template = null, double threshold = 0.35, bool max = false)
+        //{
+        //    captureScreen();
+        //    Image<Gray, Byte> tmp = Emgu.CV.CvInvoke.Imread(template).ToImage<Gray, Byte>();
+        //    using (Image<Gray, float> imgMatch = frame.MatchTemplate(tmp, Emgu.CV.CvEnum.TemplateMatchingType.CcoeffNormed))
+        //    {
+        //        double[] minValues, maxValues;
+        //        Point[] minLocations, maxLocations;
+        //        imgMatch.MinMax(out minValues, out maxValues, out minLocations, out maxLocations);
+
+        //        imgMatch.Dispose();
+        //        int hX = tmp.Width / 2, hY = tmp.Height / 2;
+        //        tmp.Dispose();
+        //        if (max)
+        //            return new Point(maxLocations[0].X + hX, maxLocations[0].Y + hY);
+        //        if (maxValues[0] >= threshold)
+        //        {
+        //            return new Point(maxLocations[0].X + hX, maxLocations[0].Y + hY);
+        //        }
+        //    }
+        //    if (tmp != null)
+        //        tmp.Dispose();
+        //    return new Point(-1, -1);
+        //}
+
         public Point matchTemplate(string template = null, double threshold = 0.35, bool max = false)
         {
-            captureScreen();
-            Image<Gray, Byte> tmp = Emgu.CV.CvInvoke.Imread(template).ToImage<Gray, Byte>();
-            using (Image<Gray, float> imgMatch = frame.MatchTemplate(tmp, Emgu.CV.CvEnum.TemplateMatchingType.CcoeffNormed))
+            try
             {
-                double[] minValues, maxValues;
-                Point[] minLocations, maxLocations;
-                imgMatch.MinMax(out minValues, out maxValues, out minLocations, out maxLocations);
-                
-                imgMatch.Dispose();
-                int hX = tmp.Width / 2, hY = tmp.Height / 2;
-                tmp.Dispose();
-                if (max)
-                    return new Point(maxLocations[0].X + hX, maxLocations[0].Y + hY);
-                if (maxValues[0] >= threshold)
+                captureScreen(); // Preenche 'frame', tipo Mat
+
+                using (Mat matTemplate = CvInvoke.Imread(template, ImreadModes.Grayscale))
                 {
-                    return new Point(maxLocations[0].X + hX, maxLocations[0].Y + hY);
+                    if (matTemplate.IsEmpty)
+                        throw new Exception($"Template '{template}' não foi carregado corretamente.");
+
+                    using (Mat result = new Mat())
+                    {
+                        CvInvoke.MatchTemplate(frame, matTemplate, result, TemplateMatchingType.CcoeffNormed);
+
+                        double minVal = 0, maxVal = 0;
+                        Point minLoc = Point.Empty, maxLoc = Point.Empty;
+                        CvInvoke.MinMaxLoc(result, ref minVal, ref maxVal, ref minLoc, ref maxLoc);
+
+                        int hX = matTemplate.Width / 2;
+                        int hY = matTemplate.Height / 2;
+
+                        if (max || maxVal >= threshold)
+                            return new Point(maxLoc.X + hX, maxLoc.Y + hY);
+                    }
                 }
+
+                return new Point(-1, -1);
             }
-            if (tmp != null)
-                tmp.Dispose();
-            return new Point(-1, -1);
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return new Point(-1, -1);
+            }
+        }
+
+        public Point matchTemplateForSentinel(string template = null, double threshold = 0.35, bool max = false)
+        {
+            try
+            {
+                captureScreenForSentinel();
+
+                using (Mat matTemplate = CvInvoke.Imread(template, ImreadModes.Grayscale))
+                {
+                    if (matTemplate.IsEmpty)
+                        throw new Exception($"Template '{template}' não foi carregado corretamente.");
+
+                    using (Mat result = new Mat())
+                    {
+                        CvInvoke.MatchTemplate(frameSentinel, matTemplate, result, TemplateMatchingType.CcoeffNormed);
+
+                        double minVal = 0, maxVal = 0;
+                        Point minLoc = Point.Empty, maxLoc = Point.Empty;
+                        CvInvoke.MinMaxLoc(result, ref minVal, ref maxVal, ref minLoc, ref maxLoc);
+
+                        int hX = matTemplate.Width / 2;
+                        int hY = matTemplate.Height / 2;
+
+                        if (max || maxVal >= threshold)
+                            return new Point(maxLoc.X + hX, maxLoc.Y + hY);
+                    }
+                }
+
+                return new Point(-1, -1);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return new Point(-1, -1);
+            }
         }
 
         public string readText(Rectangle r, bool asInt = false)
         {
             captureScreen();
-            frame.ROI = r;
 
-            Page p = tess.Process(frame.Bitmap, PageSegMode.Auto);
-            string res = p.GetText();
-            p.Dispose();
-            if (asInt)
+            using (Bitmap region = frame.Bitmap.Clone(r, frame.Bitmap.PixelFormat))
             {
-                return new String(res.Where(Char.IsDigit).ToArray());
+                using (Page p = tess.Process(region, PageSegMode.Auto))
+                {
+                    string res = p.GetText();
+                    if (asInt)
+                    {
+                        return new string(res.Where(char.IsDigit).ToArray());
+                    }
+                    return res;
+                }
             }
-            return res;
         }
 
         public void saveScreen()

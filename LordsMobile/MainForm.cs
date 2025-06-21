@@ -39,9 +39,9 @@ namespace LordsMobile
             InitializeComponent();
             lstMEmuProfiles.View = View.Details;
             lstMEmuProfiles.CheckBoxes = true;
-            foreach (List<string> vm in MEmuManager.getMEmuIDs())
+            foreach (string vm in MEmuManager.getMEmuIDs())
             {
-                ListViewItem item = new ListViewItem(new[] { "", vm[0] });
+                ListViewItem item = new ListViewItem(new[] { "", vm });
                 item.Checked = true;
                 this.lstMEmuProfiles.Items.Add(item);
                 this.lstProfiles.Items.Add(vm[0]);
@@ -50,6 +50,24 @@ namespace LordsMobile
             ttpInstances.SetToolTip(this.txtNoInstances, Strings.noOfInstancesToolTip);
             ttpInstances.SetToolTip(this.lblTimeOnAccount, Strings.amtOfTimeToolTip);
             ttpInstances.SetToolTip(this.txtTimeOnAccount, Strings.amtOfTimeToolTip);
+        }
+
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Bot.SetMainFormInstance(this);
+        }
+
+        public void StatusUpdate(string status)
+        {
+            if (richTxtStatus.InvokeRequired)
+            {
+                richTxtStatus.Invoke(new Action(() => StatusUpdate(status)));
+            }
+            else
+            {
+                richTxtStatus.Text = status;
+            }
         }
 
         private void lstProfiles_SelectedIndexChanged(object sender, EventArgs e)
@@ -206,5 +224,7 @@ namespace LordsMobile
             Settings.maxBallistas = int.Parse(this.txtBallistas.Text);
             
         }
+
+
     }
 }

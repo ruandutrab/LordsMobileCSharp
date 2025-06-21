@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace LordsMobile
 {
@@ -13,21 +14,47 @@ namespace LordsMobile
     {
         public static string[] instances;
         public static Process[] processes;
-        private static String installPath = "C:\\Program Files (x86)\\Nox\\bin";
-        private static List<List<string>> vms = new List<List<string>>();
+        private static String installPath = "C:\\Program Files\\Microvirt\\MEmu";
+        private static List<string> vms = new List<string>();
         private static List<string> allowedVMs = new List<string>();
+        private static List<string> isRunningVMs = new List<string>();
         private static int runningVMs = 0;
         private static int lastVM = 0;
 
         const int SW_RESTORE = 9;
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
+        [DllImport("User32.dll")]
         private static extern bool SetForegroundWindow(IntPtr handle);
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
+        [DllImport("User32.dll")]
         private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
-        [System.Runtime.InteropServices.DllImport("User32.dll")]
+        [DllImport("User32.dll")]
         private static extern bool IsIconic(IntPtr handle);
-        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        //[System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        //internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+        [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        public static void MoveWindowToDefinition(IntPtr hWnd, int x, int y)
+        {
+            if (GetWindowRect(hWnd, out RECT rect))
+            {
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
+                MoveWindow(hWnd, x, y, width, height, true);
+            }
+        }
+
 
         public MEmuManager()
         {
@@ -43,16 +70,68 @@ namespace LordsMobile
             string[] dirs;
             try
             {
-                dirs = Directory.GetDirectories("C:\\Program Files (x86)\\Nox\\bin\\BignoxVMS");
+                dirs = Directory.GetDirectories("C:\\Program Files\\Microvirt\\MEmu\\MemuHyperv VMs");
             } catch(Exception ex)
             {
-                dirs = Directory.GetDirectories("D:\\Program Files\\Nox\\bin\\BignoxVMS");
-                MEmuManager.installPath = "D:\\Program Files\\Nox\\bin";
+                dirs = Directory.GetDirectories("C:\\Program Files\\Microvirt\\MEmu\\MemuHyperv VMs");
+                MEmuManager.installPath = "C:\\Program Files\\Microvirt\\MEmu";
             }
-            foreach (String dir in dirs)
+    
+            var checkProc = new Process
             {
-                string d = dir.Split('\\')[dir.Split('\\').Length - 1];
-                MEmuManager.vms.Add(new List<string>() { d == "nox" ? "Nox_0" : d });
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(installPath, "memuc.exe"),
+                    Arguments = "listvms",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            checkProc.Start();
+            string listOutput = checkProc.StandardOutput.ReadToEnd();
+            checkProc.WaitForExit();
+
+            // Quebrar por linhas
+            string[] linhas = listOutput.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var linha in linhas)
+            {
+                string[] partes = linha.Split(',');
+                if (partes.Length > 1)
+                {
+                    MEmuManager.vms.Add(partes[1]);
+                }
+            }
+
+            foreach (var vm in MEmuManager.vms)
+            {
+                // Quais estão rodando...
+                var checkRunningProc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(installPath, "memuc.exe"),
+                        Arguments = $"isvmrunning i {vm}",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                checkRunningProc.Start();
+                string running = checkRunningProc.StandardOutput.ReadToEnd();
+                checkRunningProc.WaitForExit();
+
+                string[] returnRunning = running.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var linha in returnRunning)
+                {
+                    string[] vmItem = linha.Split(',');
+                    if (vmItem.Length > 1)
+                    {
+                        isRunningVMs.Add(vmItem[1]);
+                    }
+                }
             }
         }
 
@@ -61,30 +140,89 @@ namespace LordsMobile
             return processes[vm].MainWindowHandle;
         }
 
-        private static int startVM(string vm)
+        private static void resizeVM()
         {
-            int vmInd = Array.IndexOf(MEmuManager.instances, null);
-            string noxNum = vm.Split('_')[1];
+            string args = $"setconfigex -i 0 custom_resolution {Statics.GAME_WIDTH} {Statics.GAME_HEIGHT} {Statics.GAME_DPI}";
 
-            Process proc = new Process
+            var checkProc = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = installPath + "\\nox.exe",
-                    Arguments = "-clone:" + vm + " \"-title:MaggotBot" + noxNum + "\"",
-                    UseShellExecute = false,
+                    FileName = Path.Combine(installPath, "memuc.exe"),
+                    Arguments = args,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
                     CreateNoWindow = true
                 }
             };
-            proc.Start();
+            checkProc.Start();
+            string stdout = checkProc.StandardOutput.ReadToEnd();
+            string stderr = checkProc.StandardError.ReadToEnd();
+            Debug.WriteLine(stdout);
+            Debug.WriteLine(stderr);
+            checkProc.WaitForExit();
+        }
+
+        private static int startVM(string vm)
+        {
+            resizeVM();
+            int vmInd = Array.IndexOf(instances, null);
+            string memuNum = MEmuManager.lastVM.ToString();
+            string newName = $"MEmu{memuNum}";
+            bool vmAvailable = false;
+            foreach (var item in vms)
+            {
+                if (isRunningVMs.Contains(item))
+                    cloneVM(newName);
+                else
+                    vmAvailable = true;
+            }
+
+            
+            int retries = 10;
+
+            while (!vmAvailable && retries-- > 0)
+            {
+                var checkProc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(installPath, "memuc.exe"),
+                        Arguments = "listvms",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                checkProc.Start();
+                string listOutput = checkProc.StandardOutput.ReadToEnd();
+                checkProc.WaitForExit();
+
+                if (listOutput.Contains(newName))
+                {
+                    vmAvailable = true;
+                    break;
+                }
+
+                Thread.Sleep(1000);
+            }
+
+            if (vmAvailable)
+                playVM(memuNum);
+
+            if (!vmAvailable)
+            {
+                Debug.WriteLine("Erro: a nova VM ainda não foi registrada após o clone.");
+                return -1;
+            }
             do
             {
                 System.Threading.Thread.Sleep(1000);
                 Process[] p = Process.GetProcesses();
                 foreach (Process pr in p)
                 {
-                    if (pr.MainWindowTitle == "MaggotBot" + noxNum)
+                    if (pr.MainWindowTitle == $"MEmu{memuNum}" || pr.MainWindowTitle == "MEmu")
                         processes[vmInd] = pr;
                 }
             } while (processes[vmInd] == null);
@@ -97,9 +235,59 @@ namespace LordsMobile
             return vmInd;
         }
 
+        private static void playVM(string memuNum)
+        {
+            string args;
+
+            if (memuNum == "0")
+                args = $"start -n MEmu";
+            else
+                args = $"start -n MEmu{memuNum}";
+
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(installPath, "memuc.exe"),
+                    Arguments = args,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            string stdout = proc.StandardOutput.ReadToEnd();
+            string stderr = proc.StandardError.ReadToEnd();
+            Debug.WriteLine(stdout);
+            Debug.WriteLine(stderr);
+        }
+
+        private static void cloneVM(string newName)
+        {
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(installPath, "memuc.exe"),
+                    Arguments = $"clone -i 0 -r {newName}",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            string stdout = proc.StandardOutput.ReadToEnd();
+            string stderr = proc.StandardError.ReadToEnd();
+            Debug.WriteLine(stdout);
+            Debug.WriteLine(stderr);
+        }
+
         public static void resizeWindow(int vmInd)
         {
-            MoveWindow(processes[vmInd].MainWindowHandle, 0, 0, Statics.GAME_WIDTH, Statics.GAME_HEIGHT, true);
+            //MoveWindow(processes[vmInd].MainWindowHandle, 0, 0, Statics.GAME_WIDTH, Statics.GAME_HEIGHT, true);
+            MoveWindowToDefinition(processes[vmInd].MainWindowHandle, 0, 0);
         }
 
         public static int startVMs()
@@ -125,7 +313,7 @@ namespace LordsMobile
             return p;
         }
 
-        public static List<List<string>> getMEmuIDs()
+        public static List<string> getMEmuIDs()
         {
             return MEmuManager.vms;
         }
@@ -158,7 +346,7 @@ namespace LordsMobile
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = installPath + "\\nox.exe",
+                    FileName = installPath + "\\MEmu.exe",
                     Arguments = "-clone:" + MEmuManager.instances[vm],
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
