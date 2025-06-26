@@ -137,6 +137,9 @@ namespace LordsMobile
 
         public static IntPtr getHandle(int vm)
         {
+            if (processes[vm] == null)
+                throw new InvalidOperationException($"Processo da VM no índice {vm} não foi inicializado.");
+
             return processes[vm].MainWindowHandle;
         }
 
@@ -164,9 +167,8 @@ namespace LordsMobile
             checkProc.WaitForExit();
         }
 
-        private static int startVM(string vm)
+        private static async Task<int> startVM(string vm)
         {
-            resizeVM();
             int vmInd = Array.IndexOf(instances, null);
             string memuNum = MEmuManager.lastVM.ToString();
             string newName = $"MEmu{memuNum}";
@@ -179,7 +181,7 @@ namespace LordsMobile
                     vmAvailable = true;
             }
 
-            
+
             int retries = 10;
 
             while (!vmAvailable && retries-- > 0)
@@ -228,10 +230,10 @@ namespace LordsMobile
             } while (processes[vmInd] == null);
             Thread.Sleep(500);
             Debug.WriteLine("Process Found: " + processes[vmInd].MainWindowTitle);
-            resizeWindow(vmInd);
+            //resizeWindow(vmInd);
+            //resizeVM();
             Thread.Sleep(500);
             instances[vmInd] = vm;
-
             return vmInd;
         }
 
@@ -290,22 +292,22 @@ namespace LordsMobile
             MoveWindowToDefinition(processes[vmInd].MainWindowHandle, 0, 0);
         }
 
-        public static int startVMs()
+        public static async Task<int> startVMs()
         {
-            int p = 0;
+            int p = -1;
             int vmsLeft = Settings.maxVMs - MEmuManager.runningVMs;
             if (MEmuManager.runningVMs < Settings.maxVMs && MEmuManager.runningVMs < MEmuManager.allowedVMs.Count)
             {
                 if (MEmuManager.lastVM < MEmuManager.allowedVMs.Count)
                 {
-                    p = MEmuManager.startVM(MEmuManager.allowedVMs[MEmuManager.lastVM]);
+                    p = await MEmuManager.startVM(MEmuManager.allowedVMs[MEmuManager.lastVM]);
                     MEmuManager.lastVM++;
                     MEmuManager.runningVMs++;
                 }
                 else
                 {
                     MEmuManager.lastVM = 0;
-                    p = MEmuManager.startVM(MEmuManager.allowedVMs[MEmuManager.lastVM]);
+                    p = await MEmuManager.startVM(MEmuManager.allowedVMs[MEmuManager.lastVM]);
                     MEmuManager.lastVM++;
                     MEmuManager.runningVMs++;
                 }
@@ -376,6 +378,201 @@ namespace LordsMobile
                 ShowWindow(handle, SW_RESTORE);
             }
             SetForegroundWindow(handle);
+        }
+        //public static int startSpecificVM(string vmName)
+        //{
+        //    int vmInd = Array.IndexOf(instances, null);
+
+        //    if (vmInd == -1)
+        //        return -1; // sem espaço
+
+        //    if (string.IsNullOrWhiteSpace(vmName))
+        //        return -1;
+
+        //    setMaxInstances(instances.Length); // Garante que 'processes' esteja inicializado
+
+        //    // Clona se ainda não existir
+        //    var checkProc = new Process
+        //    {
+        //        StartInfo = new ProcessStartInfo
+        //        {
+        //            FileName = Path.Combine(installPath, "memuc.exe"),
+        //            Arguments = $"listvms",
+        //            RedirectStandardOutput = true,
+        //            UseShellExecute = false,
+        //            CreateNoWindow = true
+        //        }
+        //    };
+        //    checkProc.Start();
+        //    string output = checkProc.StandardOutput.ReadToEnd();
+        //    checkProc.WaitForExit();
+
+        //    if (!output.Contains(vmName))
+        //    {
+        //        var clone = new Process
+        //        {
+        //            StartInfo = new ProcessStartInfo
+        //            {
+        //                FileName = Path.Combine(installPath, "memuc.exe"),
+        //                Arguments = $"clone -i 0 -r {vmName}",
+        //                UseShellExecute = false,
+        //                RedirectStandardOutput = true,
+        //                RedirectStandardError = true,
+        //                CreateNoWindow = true
+        //            }
+        //        };
+        //        clone.Start();
+        //        clone.WaitForExit();
+        //        Thread.Sleep(5000); // tempo para a VM ser registrada
+        //    }
+
+        //    // Start VM
+        //    var startProc = new Process
+        //    {
+        //        StartInfo = new ProcessStartInfo
+        //        {
+        //            FileName = Path.Combine(installPath, "memuc.exe"),
+        //            Arguments = $"start -n {vmName}",
+        //            UseShellExecute = false,
+        //            RedirectStandardOutput = true,
+        //            RedirectStandardError = true,
+        //            CreateNoWindow = true
+        //        }
+        //    };
+        //    startProc.Start();
+        //    startProc.WaitForExit();
+
+        //    // Aguarda o processo aparecer
+        //    int tentativas = 20;
+        //    while (tentativas-- > 0)
+        //    {
+        //        Process[] all = Process.GetProcesses();
+        //        foreach (var p in all)
+        //        {
+        //            if (p.MainWindowTitle == vmName)
+        //            {
+        //                processes[vmInd] = p;
+        //                instances[vmInd] = vmName;
+        //                resizeWindow(vmInd); // Ajusta o tamanho se necessário
+        //                return vmInd;
+        //            }
+        //        }
+        //        Thread.Sleep(1000);
+        //    }
+
+        //    return -1;
+        //}
+        public static int startSpecificVM(string vmName)
+        {
+            int vmInd = Array.IndexOf(instances, null);
+
+            if (vmInd == -1 || string.IsNullOrWhiteSpace(vmName))
+                return -1;
+
+            setMaxInstances(instances.Length); // garante inicialização
+
+            // Verifica se a VM já existe
+            var checkProc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(installPath, "memuc.exe"),
+                    Arguments = $"listvms",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            checkProc.Start();
+            string listOutput = checkProc.StandardOutput.ReadToEnd();
+            checkProc.WaitForExit();
+
+            // Tenta encontrar a VM e seu índice
+            string[] linhas = listOutput.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            int vmIndex = -1;
+
+            foreach (string linha in linhas)
+            {
+                string[] partes = linha.Split(',');
+                if (partes.Length > 1 && partes[1] == vmName)
+                {
+                    vmIndex = int.Parse(partes[0]); // achou o índice
+                    break;
+                }
+            }
+
+            // Se não encontrou, clona
+            if (vmIndex == -1)
+            {
+                var clone = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(installPath, "memuc.exe"),
+                        Arguments = $"clone -i 0 -r {vmName}",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                clone.Start();
+                clone.WaitForExit();
+
+                Thread.Sleep(5000); // aguarda o sistema registrar a nova VM
+
+                // Refaz leitura da lista
+                checkProc.Start();
+                listOutput = checkProc.StandardOutput.ReadToEnd();
+                checkProc.WaitForExit();
+
+                linhas = listOutput.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string linha in linhas)
+                {
+                    string[] partes = linha.Split(',');
+                    if (partes.Length > 1 && partes[1] == vmName)
+                    {
+                        vmIndex = int.Parse(partes[0]);
+                        break;
+                    }
+                }
+            }
+
+            if (vmIndex == -1)
+                return -1; // falha total
+
+            // Inicia VM pelo índice
+            var startProc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Path.Combine(installPath, "memuc.exe"),
+                    Arguments = $"start -i {vmIndex}",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            startProc.Start();
+            startProc.WaitForExit();
+
+            // Aguarda processo aparecer
+            int tentativas = 20;
+            while (tentativas-- > 0)
+            {
+                var proc = Process.GetProcesses().FirstOrDefault(p => p.MainWindowTitle.Contains(vmName));
+                if (proc != null)
+                {
+                    processes[vmInd] = proc;
+                    instances[vmInd] = vmName;
+                    resizeWindow(vmInd);
+                    return vmInd;
+                }
+                Thread.Sleep(1000);
+            }
+
+            return -1;
         }
     }
 }

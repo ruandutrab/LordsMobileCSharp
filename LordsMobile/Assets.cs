@@ -147,8 +147,10 @@ namespace LordsMobile
             public const string shelter_trops = attack + "shelter_trops.jpg";
             public const string confirm_shelter = attack + "confirm_shelter.jpg";
             // if have shields
+            public const string has_shield = attack + "has_shield.jpg";
             public const string painel_shield = attack + "painel_shield.jpg";
-            public const string use_shield = attack + "use_shield.jpg";
+            public const string shield_menu = attack + "shield_menu.jpg";
+            public const string using_shield = attack + "using_shield.jpg";
         }
 
         public class Help
@@ -224,6 +226,23 @@ namespace LordsMobile
             public const string enter_gift = path + "enter_gift.jpg";
             public const string open_gift = path + "open_gift.jpg";
             public const string clean_gift = path + "clean_gift.jpg";
+            public const string menu_guild_gift = path + "menu_guild_gift.jpg";
+            public const string open_all_gifts = path + "open_all_gifts.jpg";
+            public const string clean_all_gifts = path + "clean_all_gifts.jpg";
+        }
+
+        public class Infirmary
+        {
+            private const string path = "assets\\infirmary\\";
+            public const string infirmary = path + "infirmary.jpg";
+            public const string heal_all = path + "heal_all.jpg";
+            public const string material_not_available = path + "material_not_available.jpg";
+            public const string heal = path + "heal.jpg";
+        }
+
+        public class TransmutationLab {
+            private const string path = "assets\\transmutation_lab\\";
+            public const string transmutation_lab = path + "transmutation_lab.jpg";
         }
     }
 }

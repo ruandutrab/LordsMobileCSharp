@@ -31,6 +31,7 @@ namespace LordsMobile
     {
         public string VmName { get; set; }
         public string PlayerName { get; set; }
+        public bool Enabled { get; set; }
     }
     public class BotConfigs
     {

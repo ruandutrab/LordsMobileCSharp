@@ -29,7 +29,7 @@ namespace LordsMobile
 
         [DllImport("user32.dll", EntryPoint = "FindWindowEx")]
         public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
-
+        private List<VmProfile> profiles = new List<VmProfile>();
 
         public MainForm()
         {
@@ -56,6 +56,15 @@ namespace LordsMobile
         private void MainForm_Load(object sender, EventArgs e)
         {
             Bot.SetMainFormInstance(this);
+
+            // Exemplo estático; ideal carregar de JSON ou BD
+            profiles = new List<VmProfile>
+            {
+                new VmProfile { VmName = "MEmu0", PlayerName = "mgt01", Enabled = true },
+                new VmProfile { VmName = "MEmu1", PlayerName = "mgt02", Enabled = true }
+            };
+            MEmuManager.setMaxInstances(10);
+            CarregarPerfis(); // carrega os botões
         }
 
         public void StatusUpdate(string status)
@@ -96,7 +105,7 @@ namespace LordsMobile
             Settings.maxGrunts = int.Parse(this.txtGrunts.Text);
             Settings.maxCataphracts = int.Parse(this.txtCataphracts.Text);
             Settings.maxBallistas = int.Parse(this.txtBallistas.Text);
-            theBot = new Thread(Bot.start);
+            //theBot = new Thread(Bot.start);
             theBot.Start();
         }
 
@@ -225,6 +234,70 @@ namespace LordsMobile
             
         }
 
+        private void CarregarPerfis()
+        {
+            pnlProfile.Controls.Clear();
+            int yOffset = 10;
 
+            foreach (var profile in profiles)
+            {
+                Label lbl = new Label
+                {
+                    Text = profile.PlayerName,
+                    Location = new Point(10, yOffset),
+                    Size = new Size(150, 23)
+                };
+
+                Button btn = new Button
+                {
+                    Text = "Start",
+                    Location = new Point(170, yOffset),
+                    Size = new Size(75, 23),
+                    Tag = profile // armazena o perfil no botão
+                };
+                btn.Click += StartPerfil_Click;
+
+                pnlProfile.Controls.Add(lbl);
+                pnlProfile.Controls.Add(btn);
+
+                yOffset += 30;
+            }
+        }
+
+        private void StartPerfil_Click(object sender, EventArgs e)
+        {
+            var btn = sender as Button;
+            var profile = btn.Tag as VmProfile;
+
+            if (profile == null)
+                return;
+
+            // Garante que ainda há espaço
+            if (MEmuManager.getRunningAmount() >= Settings.maxVMs)
+            {
+                StatusUpdate($"Limite de VMs atingido.");
+                return;
+            }
+
+            int pId = MEmuManager.startSpecificVM(profile.VmName);
+            if (pId == -1)
+            {
+                StatusUpdate($"Erro ao iniciar VM para {profile.PlayerName}");
+                return;
+            }
+
+            State st = new State(MEmuManager.getHandle(pId));
+            st.processIndex = pId;
+
+            Settings.namePrefix = profile.PlayerName; // vincula o nome
+            Settings.guildName = "SuaGuilda";         // pode ajustar por perfil depois
+
+            Thread botThread = new Thread(() => Bot.startForProfile(st));
+            botThread.Start();
+            Thread shieldCheck = new Thread(() => Bot.Sentinel(st));
+            shieldCheck.Start();
+
+            StatusUpdate($"Bot iniciado para {profile.PlayerName}");
+        }
     }
 }

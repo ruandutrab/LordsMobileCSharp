@@ -147,7 +147,16 @@ namespace LordsMobile
 
         public class GuildGift
         {
-            public static readonly Point GIFT = new Point(455, 580);
+            public static readonly Point GUILD_BUTTON = new Point(455, 580);
+            public static readonly Point GUILD_GIFT = new Point(500, 225);
+            public static readonly Point BONUS_CHEST = new Point(740, 225);
+        }
+
+        public class TransmutationLab
+        {
+            public static readonly Point POS1 = new Point(245, 380);
+            public static readonly Point POS2 = new Point(490, 380);
+            public static readonly Point POS3 = new Point(735, 380);
         }
 
         public class Quests
