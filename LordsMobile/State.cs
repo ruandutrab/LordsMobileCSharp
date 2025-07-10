@@ -48,7 +48,7 @@ namespace LordsMobile
             if (enable)
             {
                 Debug.WriteLine("Stuck in clear");
-                if (v.matchTemplate(Assets.Etc.Oracle, 0.80).X != -1)
+                if (v.ExistPoint(Assets.Etc.Oracle, 0.80))
                 {
                     Debug.WriteLine("In oracle");
                     Thread.Sleep(500);
@@ -56,10 +56,17 @@ namespace LordsMobile
                     clearScreen();
                 }
 
-                if (v.matchTemplate(Assets.Etc.Close, 0.80).X != -1)
+                if (v.ExistPoint(Assets.Etc.Close, 0.80))
                 {
-                    Debug.WriteLine(v.matchTemplate(Assets.Etc.Close, 0.65));
-                    this.c.vClick(v.matchTemplate(Assets.Etc.Close, 0.65));
+                    this.c.vClick(v.matchTemplate(Assets.Etc.Close, 0.80));
+                    Debug.WriteLine("Stuck in close");
+                    Thread.Sleep(500);
+                    clearScreen();
+                }
+
+                if (v.ExistPoint(Assets.Panel.close_panel, 0.80))
+                {
+                    this.c.vClick(v.matchTemplate(Assets.Panel.close_panel, 0.80));
                     Debug.WriteLine("Stuck in close");
                     Thread.Sleep(500);
                     clearScreen();

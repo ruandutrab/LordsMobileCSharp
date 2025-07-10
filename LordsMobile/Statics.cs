@@ -143,13 +143,18 @@ namespace LordsMobile
             public static readonly Point ARCHER = new Point(404, 294);
             public static readonly Point CATAPHRACT = new Point(568, 294);
             public static readonly Point TRAIN = new Point(666, 537);
+            // Scroller
+            // preciso de uma propriedade para o scroller.
+            public static readonly Point SCROLLER = new Point(950, 300);
+
+
         }
 
         public class GuildGift
         {
             public static readonly Point GUILD_BUTTON = new Point(455, 580);
-            public static readonly Point GUILD_GIFT = new Point(500, 225);
-            public static readonly Point BONUS_CHEST = new Point(740, 225);
+            public static readonly Point GUILD_GIFT = new Point(500, 230);
+            public static readonly Point BONUS_CHEST = new Point(740, 230);
         }
 
         public class TransmutationLab
@@ -166,6 +171,17 @@ namespace LordsMobile
             public static readonly Point ADMIN_COMP = new Point(490, 155);
             public static readonly Point TURF_COMP = new Point(330, 155);
             public static readonly Point DAILY_COMP = new Point(190, 155);
+
+            public static readonly Point OPEN_CHEST1 = new Point(315, 245);
+            public static readonly Point OPEN_CHEST2 = new Point(435, 245);
+            public static readonly Point OPEN_CHEST3 = new Point(555, 245);
+            public static readonly Point OPEN_CHEST4 = new Point(675, 245);
+            public static readonly Point OPEN_CHEST5 = new Point(795, 245);
+            public static readonly Rectangle CHEST_LOCATION1 = new Rectangle(296, 234, 37, 25);
+            public static readonly Rectangle CHEST_LOCATION2 = new Rectangle(416, 234, 37, 25);
+            public static readonly Rectangle CHEST_LOCATION3 = new Rectangle(535, 235, 37, 25);
+            public static readonly Rectangle CHEST_LOCATION4 = new Rectangle(655, 235, 37, 24);
+            public static readonly Rectangle CHEST_LOCATION5 = new Rectangle(773, 234, 37, 25);
         }
         public class Settings
         {

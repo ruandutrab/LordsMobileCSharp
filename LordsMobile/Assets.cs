@@ -92,22 +92,59 @@ namespace LordsMobile
         public class Quest
         {
             private const string quest = "assets\\quest\\";
-            public const string HasCompleted = quest + "has_completed.jpg";
-            public const string HasQuests = quest + "has_quests.jpg";
-            public const string Collect = quest + "collect.jpg";
-            public const string Start = quest + "start.jpg";
-            public const string Admin = quest + "admin_comp.jpg";
-            public const string Turf = quest + "turf_comp.jpg";
-            public const string Guild = quest + "guild_comp.jpg";
-            public const string VIP = quest + "vip_comp.jpg";
-            public const string VIPClaim = quest + "vip_claim.jpg";
-            public const string VIPChest = quest + "vip_chest.jpg";
+            public const string has_completed = quest + "has_completed.jpg";
+            public const string has_quests = quest + "has_quests.jpg";
+            public const string collect = quest + "collect.jpg";
+            public const string start = quest + "start.jpg";
+            public const string daily_comp = quest + "daily_comp.jpg";
+            public const string daily_comp_select = quest + "daily_comp_select.jpg";
+            public const string admin_comp = quest + "admin_comp.jpg";
+            public const string admin_comp_select = quest + "admin_comp_select.jpg";
+            public const string turf_comp = quest + "turf_comp.jpg";
+            public const string turf_comp_select = quest + "turf_comp_select.jpg";
+            public const string guild_comp = quest + "guild_comp.jpg";
+            public const string guild_comp_select = quest + "guild_comp_select.jpg";
+            public const string vip_comp = quest + "vip_comp.jpg";
+            public const string vip_comp_select = quest + "vip_comp_select.jpg";
+            public const string vip_chest = quest + "vip_chest.jpg";
+            public const string auto_complete = quest + "auto_complete.jpg";
+            public const string auto_complete_2 = quest + "auto_complete_2.jpg";
+            public const string close_up_level = quest + "close_up_level.jpg";
+            public const string open_chest_daily = quest + "open_chest_daily.jpg";
+            public const string closed_chest = quest + "closed_chest.jpg";
+            public const string open_chest = quest + "open_chest.jpg";
+            public static readonly String[] muilt_auto_complete = new String[]
+            {
+                quest + "auto_complete_2.jpg",
+                quest + "auto_complete.jpg"
+            };
+            //public static readonly String[] open_chest_daily = new String[]
+            //{
+            //    quest + "open_chest_daily.jpg",
+            //    quest + "open_chest_daily2.jpg",
+            //    quest + "open_chest_daily3.jpg"
+            //};
+            //public const string vip_claim = quest + "vip_claim.jpg";
         }
 
         public class Gather
         {
             private const string res = "assets\\res\\";
-            public const string GatherRes = res + "gather.jpg";
+            public const string gather_res = res + "gather.jpg";
+            public const string gather_mirage = res + "mirage\\mirage.jpg";
+            //public const string mirage_ruins = res + "mirage\\ruins.jpg";
+            public const string gathering_priority = res + "gathering_priority.jpg";
+            public const string tier_select = res + "tier_select.jpg";
+            public const string highest_tier = res + "highest_tier.jpg";
+            public const string lowest_tier = res + "lowest_tier.jpg";
+            public const string highest_tier_first = res + "highest_tier_first.jpg";
+            public const string lowest_tier_first = res + "lowest_tier_first.jpg";
+            public const string deploy = res + "deploy.jpg";
+            public static readonly String[] mirage_ruins = new String[]
+            {
+                res + "mirage\\ruins.jpg",
+                res + "mirage\\ruins_2.jpg"
+            };
             public static readonly String[] Field = new String[]
             {
                 res + "txt_field.jpg",
@@ -161,16 +198,17 @@ namespace LordsMobile
             public const string help_all = path + "help_all.jpg";
         }
 
-        public class Painel
+        public class Panel
         {
-            private const string path = "assets\\painel\\";
-            public const string painel_finish_task = path + "painel_standby_task_finish.jpg";
+            private const string path = "assets\\panel\\";
+            public const string panel_finish_task = path + "panel_standby_task_finish.jpg";
             public const string free_button = path + "finish_task.jpg";
-            public const string painel_Zzz = path + "painel_standby.jpg";
+            public const string panel_Zzz = path + "panel_standby.jpg";
             public const string construction = path + "construction_queue_is_idle.jpg";
             public const string research = path + "research_is_idle.jpg";
             public const string barracks = path + "barracks_is_idle.jpg";
             public const string task_available = path + "task_available.jpg";
+            public const string close_panel = path + "close_panel.jpg";
         }
 
         public class Construction
@@ -183,6 +221,9 @@ namespace LordsMobile
             public const string request_help = path + "request_help.jpg";
             public const string material_not_available = path + "material_not_available.jpg";
             public const string idle_upgrade = path + "idle_upgrade.jpg";
+            public const string quick_swap_menu = path + "quick_swap_menu.jpg";
+            public const string apply_set = path + "apply_set.jpg";
+            public const string help = path + "help.jpg";
         }
 
         public class Research
@@ -199,10 +240,26 @@ namespace LordsMobile
         {
             private const string path = "assets\\barracks\\";
             public const string barracks = path + "barracks.jpg";
-            public const string inf_t1 = path + "inf_t1.jpg";
-            public const string arch_t1 = path + "arch_t1.jpg";
-            public const string cav_t1 = path + "cav_t1.jpg";
-            public const string balli_t1 = path + "balli_t1.jpg";
+            public const string inf_t1 = path + "\\t1\\inf_t1.jpg";
+            public const string arch_t1 = path + "\\t1\\arch_t1.jpg";
+            public const string cav_t1 = path + "\\t1\\cav_t1.jpg";
+            public const string balli_t1 = path + "\\t1\\balli_t1.jpg";
+
+            public const string inf_t2 = path + "\\t2\\inf_t2.jpg";
+            public const string arch_t2 = path + "\\t2\\arch_t2.jpg";
+            public const string cav_t2 = path + "\\t2\\cav_t2.jpg";
+            public const string balli_t2 = path + "\\t2\\balli_t2.jpg";
+
+            public const string inf_t3 = path + "\\t3\\inf_t3.jpg";
+            public const string arch_t3 = path + "\\t3\\arch_t3.jpg";
+            public const string cav_t3 = path + "\\t3\\cav_t3.jpg";
+            public const string balli_t3 = path + "\\t3\\balli_t3.jpg";
+
+            public const string inf_t4 = path + "\\t4\\inf_t4.jpg";
+            public const string arch_t4 = path + "\\t4\\arch_t4.jpg";
+            public const string cav_t4 = path + "\\t4\\cav_t4.jpg";
+            public const string balli_t4 = path + "\\t4\\balli_t4.jpg";
+
             public const string start_training = path + "start_training.jpg";
             public const string material_not_available = path + "material_not_available.jpg";
         }
@@ -216,7 +273,11 @@ namespace LordsMobile
         public class StartUp
         {
             private const string path = "assets\\startup\\";
-            public const string initial_screen = path + "initial_screen.jpg";
+            public static readonly String[] home_screen = new String[]
+            {
+                path + "Internal_home_screen.jpg",
+                path + "external_home_screen.jpg"
+            };
         }
 
         public class GuildGift
@@ -243,6 +304,7 @@ namespace LordsMobile
         public class TransmutationLab {
             private const string path = "assets\\transmutation_lab\\";
             public const string transmutation_lab = path + "transmutation_lab.jpg";
+            public const string transmute = path + "transmute.jpg";
         }
     }
 }

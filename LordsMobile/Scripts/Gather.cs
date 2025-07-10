@@ -61,13 +61,13 @@ namespace LordsMobile.Scripts
 
             state.clearScreen();
             state.goTo(false);
-            foreach (Action a in moves)
+            foreach (Action action in moves)
             {
                 for (int i = 1; i < assets.Length; i++)
                 {
                     if (state.c.vClick(state.v.matchTemplate(assets[i], 0.25, true)))
                     {
-                        if (state.v.matchTemplate(assets[0], 0.7).X != -1 && state.v.matchTemplate(Assets.Gather.GatherRes, 0.7).X != -1)
+                        if (state.v.matchTemplate(assets[0], 0.7).X != -1 && state.v.matchTemplate(Assets.Gather.gather_res, 0.7).X != -1)
                         {
                             gathering = true;
                             break;
@@ -78,7 +78,7 @@ namespace LordsMobile.Scripts
                 if (gathering)
                     break;
 
-                a();
+                action();
             }
             state.c.vClick(Statics.Gather.GATHER);
             state.c.vClick(Statics.Gather.ASSEMBLE);

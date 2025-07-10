@@ -379,95 +379,45 @@ namespace LordsMobile
             }
             SetForegroundWindow(handle);
         }
-        //public static int startSpecificVM(string vmName)
-        //{
-        //    int vmInd = Array.IndexOf(instances, null);
+        
+        public static void runLordsMobile(VmProfile profile)
+        {
+            while (true)
+            {
+                // Executa o jogo
+                var startProc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = Path.Combine(installPath, "memuc.exe"),
+                        Arguments = $"startapp -i {profile.VmIndex} com.igg.android.lordsmobile",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                startProc.Start();
+                string stdout = startProc.StandardOutput.ReadToEnd();
+                string error = startProc.StandardError.ReadToEnd();
 
-        //    if (vmInd == -1)
-        //        return -1; // sem espaço
+                if (stdout.Contains("SUCCESS"))
+                    break;
 
-        //    if (string.IsNullOrWhiteSpace(vmName))
-        //        return -1;
+                if (!string.IsNullOrEmpty(error))
+                    Debug.Write(error);
 
-        //    setMaxInstances(instances.Length); // Garante que 'processes' esteja inicializado
+                Thread.Sleep(5000); // Aguarda 5 segundos antes de tentar novamente
+            }
+            
+        }
 
-        //    // Clona se ainda não existir
-        //    var checkProc = new Process
-        //    {
-        //        StartInfo = new ProcessStartInfo
-        //        {
-        //            FileName = Path.Combine(installPath, "memuc.exe"),
-        //            Arguments = $"listvms",
-        //            RedirectStandardOutput = true,
-        //            UseShellExecute = false,
-        //            CreateNoWindow = true
-        //        }
-        //    };
-        //    checkProc.Start();
-        //    string output = checkProc.StandardOutput.ReadToEnd();
-        //    checkProc.WaitForExit();
-
-        //    if (!output.Contains(vmName))
-        //    {
-        //        var clone = new Process
-        //        {
-        //            StartInfo = new ProcessStartInfo
-        //            {
-        //                FileName = Path.Combine(installPath, "memuc.exe"),
-        //                Arguments = $"clone -i 0 -r {vmName}",
-        //                UseShellExecute = false,
-        //                RedirectStandardOutput = true,
-        //                RedirectStandardError = true,
-        //                CreateNoWindow = true
-        //            }
-        //        };
-        //        clone.Start();
-        //        clone.WaitForExit();
-        //        Thread.Sleep(5000); // tempo para a VM ser registrada
-        //    }
-
-        //    // Start VM
-        //    var startProc = new Process
-        //    {
-        //        StartInfo = new ProcessStartInfo
-        //        {
-        //            FileName = Path.Combine(installPath, "memuc.exe"),
-        //            Arguments = $"start -n {vmName}",
-        //            UseShellExecute = false,
-        //            RedirectStandardOutput = true,
-        //            RedirectStandardError = true,
-        //            CreateNoWindow = true
-        //        }
-        //    };
-        //    startProc.Start();
-        //    startProc.WaitForExit();
-
-        //    // Aguarda o processo aparecer
-        //    int tentativas = 20;
-        //    while (tentativas-- > 0)
-        //    {
-        //        Process[] all = Process.GetProcesses();
-        //        foreach (var p in all)
-        //        {
-        //            if (p.MainWindowTitle == vmName)
-        //            {
-        //                processes[vmInd] = p;
-        //                instances[vmInd] = vmName;
-        //                resizeWindow(vmInd); // Ajusta o tamanho se necessário
-        //                return vmInd;
-        //            }
-        //        }
-        //        Thread.Sleep(1000);
-        //    }
-
-        //    return -1;
-        //}
-        public static int startSpecificVM(string vmName)
+        public static VmProfile startSpecificVM(VmProfile profile)
         {
             int vmInd = Array.IndexOf(instances, null);
 
-            if (vmInd == -1 || string.IsNullOrWhiteSpace(vmName))
-                return -1;
+            if (vmInd == -1 || string.IsNullOrWhiteSpace(profile.VmName))
+                return null;
 
             setMaxInstances(instances.Length); // garante inicialização
 
@@ -494,7 +444,7 @@ namespace LordsMobile
             foreach (string linha in linhas)
             {
                 string[] partes = linha.Split(',');
-                if (partes.Length > 1 && partes[1] == vmName)
+                if (partes.Length > 1 && partes[1] == profile.VmName)
                 {
                     vmIndex = int.Parse(partes[0]); // achou o índice
                     break;
@@ -509,7 +459,7 @@ namespace LordsMobile
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = Path.Combine(installPath, "memuc.exe"),
-                        Arguments = $"clone -i 0 -r {vmName}",
+                        Arguments = $"clone -i 0 -r {profile.VmName}",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -530,7 +480,7 @@ namespace LordsMobile
                 foreach (string linha in linhas)
                 {
                     string[] partes = linha.Split(',');
-                    if (partes.Length > 1 && partes[1] == vmName)
+                    if (partes.Length > 1 && partes[1] == profile.VmName)
                     {
                         vmIndex = int.Parse(partes[0]);
                         break;
@@ -539,7 +489,7 @@ namespace LordsMobile
             }
 
             if (vmIndex == -1)
-                return -1; // falha total
+                return null; // falha total
 
             // Inicia VM pelo índice
             var startProc = new Process
@@ -561,18 +511,20 @@ namespace LordsMobile
             int tentativas = 20;
             while (tentativas-- > 0)
             {
-                var proc = Process.GetProcesses().FirstOrDefault(p => p.MainWindowTitle.Contains(vmName));
+                var proc = Process.GetProcesses().FirstOrDefault(p => p.MainWindowTitle.Contains(profile.VmName));
                 if (proc != null)
                 {
                     processes[vmInd] = proc;
-                    instances[vmInd] = vmName;
+                    instances[vmInd] = profile.VmName;
                     resizeWindow(vmInd);
-                    return vmInd;
+                    profile.VmIdProcess = vmInd;
+                    profile.VmIndex = vmIndex;
+                    return profile;
                 }
                 Thread.Sleep(1000);
             }
 
-            return -1;
+            return null;
         }
     }
 }

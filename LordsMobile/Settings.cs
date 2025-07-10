@@ -22,15 +22,29 @@ namespace LordsMobile
         public static int maxBallistas = 0;
         public static string army_limit = "";
 
-        public Thread Threads { get; set; }
-        public string MemuInstance { get; set; }
-        public string AccountName { get; set; }
+        public static class Bot
+        {
+            public static DateTime TimeToCheckQuests { get; set; }
+        }
+
+        public static class Troops
+        {
+            public static bool TrainingTroopsT1 { get; set; } = true;
+            public static bool TrainingTroopsT2 { get; set; }
+            public static bool TrainingTroopsT3 { get; set; }
+            public static bool TrainingTroopsT4 { get; set; }
+            public static bool TrainingTroopsT5 { get; set; }
+            public static string Troop { get; set; } = "Arch";
+
+        }
     }
 
     class VmProfile
     {
-        public string VmName { get; set; }
         public string PlayerName { get; set; }
+        public string VmName { get; set; }
+        public int VmIdProcess { get; set; }
+        public int VmIndex { get; set; }
         public bool Enabled { get; set; }
     }
     public class BotConfigs
@@ -39,9 +53,5 @@ namespace LordsMobile
         public int TimeGuildGifts { get; set; } = 5;
     }
 
-    public class Troops
-    {
-        public List<int> MaxTroops { get; set; }
-        public bool TrainT1 { get; set; }
-    }
+    
 }

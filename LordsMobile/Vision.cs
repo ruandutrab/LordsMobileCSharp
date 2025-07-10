@@ -118,6 +118,14 @@ namespace LordsMobile
                 return false;
         }
 
+        public bool ExistMultPoints(string[] template, double threshold)
+        {
+            Point point = MuiltMatchTemplate(template, threshold);
+            if (point.X > 0 && point.Y > 0)
+                return true;
+            else
+                return false;
+        }
         //public Point matchTemplate(string template = null, double threshold = 0.35, bool max = false)
         //{
         //    captureScreen();
@@ -147,6 +155,10 @@ namespace LordsMobile
         {
             try
             {
+                // Verifica se o arquivo de template é válido
+                if (string.IsNullOrEmpty(template) || !System.IO.File.Exists(template))
+                    throw new ArgumentException("Template inválido ou não encontrado.", nameof(template));
+
                 captureScreen(); // Preenche 'frame', tipo Mat
 
                 using (Mat matTemplate = CvInvoke.Imread(template, ImreadModes.Grayscale))
@@ -167,6 +179,108 @@ namespace LordsMobile
 
                         if (max || maxVal >= threshold)
                             return new Point(maxLoc.X + hX, maxLoc.Y + hY);
+                    }
+                }
+
+                return new Point(-1, -1);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return new Point(-1, -1);
+            }
+        }
+
+        public Point MuiltMatchTemplate(string[] templates, double threshold = 0.35)
+        {
+            try
+            {
+                captureScreen(); // Preenche 'frame', tipo Mat
+
+                double bestScore = 0;
+                Point bestPoint = new Point(-1, -1);
+
+                foreach (var template in templates)
+                {
+                    // Verifica se o arquivo de template é válido
+                    if (string.IsNullOrEmpty(template) || !System.IO.File.Exists(template))
+                        throw new ArgumentException($"Template '{template}' inválido ou não encontrado.", nameof(template));
+                    using (Mat matTemplate = CvInvoke.Imread(template, ImreadModes.Grayscale))
+                    {
+                        if (matTemplate.IsEmpty)
+                            throw new Exception($"Template '{template}' não foi carregado corretamente.");
+                        using (Mat result = new Mat())
+                        {
+                            CvInvoke.MatchTemplate(frame, matTemplate, result, TemplateMatchingType.CcoeffNormed);
+                            double minVal = 0, maxVal = 0;
+                            Point minLoc = Point.Empty, maxLoc = Point.Empty;
+                            CvInvoke.MinMaxLoc(result, ref minVal, ref maxVal, ref minLoc, ref maxLoc);
+                            if ((maxVal >= threshold) && (maxVal >= bestScore))
+                            {
+                                bestScore = maxVal;
+                                bestPoint = new Point(maxLoc.X + matTemplate.Width / 2, maxLoc.Y + matTemplate.Height / 2);
+                            }
+                        }
+                    }
+                }    
+
+                return bestPoint;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return new Point(-1, -1);
+            }
+        }
+
+        public Point matchLocationTemplate(string template = null, double threshold = 0.35, bool max = false, Rectangle? region = null)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(template) || !System.IO.File.Exists(template))
+                    throw new ArgumentException("Template inválido ou não encontrado.", nameof(template));
+
+                captureScreen(); // Preenche 'frame', que é do tipo Image<Gray, byte>
+
+                // Converte Image<Gray, byte> para Mat
+                Mat searchArea = frame.Mat;
+
+                if (region.HasValue)
+                {
+                    Rectangle rect = Rectangle.Intersect(new Rectangle(Point.Empty, searchArea.Size), region.Value);
+                    if (rect.Width > 0 && rect.Height > 0)
+                    {
+                        searchArea = new Mat(searchArea, rect); // Aplica ROI
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Região de busca inválida.");
+                    }
+                }
+
+                using (Mat matTemplate = CvInvoke.Imread(template, ImreadModes.Grayscale))
+                {
+                    if (matTemplate.IsEmpty)
+                        throw new Exception($"Template '{template}' não foi carregado corretamente.");
+
+                    using (Mat result = new Mat())
+                    {
+                        CvInvoke.MatchTemplate(searchArea, matTemplate, result, TemplateMatchingType.CcoeffNormed);
+
+                        double minVal = 0, maxVal = 0;
+                        Point minLoc = Point.Empty, maxLoc = Point.Empty;
+                        CvInvoke.MinMaxLoc(result, ref minVal, ref maxVal, ref minLoc, ref maxLoc);
+
+                        int hX = matTemplate.Width / 2;
+                        int hY = matTemplate.Height / 2;
+
+                        if (max || maxVal >= threshold)
+                        {
+                            if (region.HasValue)
+                                return new Point(maxLoc.X + region.Value.X + hX, maxLoc.Y + region.Value.Y + hY);
+                            else
+                                return new Point(maxLoc.X + hX, maxLoc.Y + hY);
+                        }
                     }
                 }
 

@@ -31,6 +31,8 @@ namespace LordsMobile
         public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
         private List<VmProfile> profiles = new List<VmProfile>();
 
+        private Dictionary<string, Thread> perfilThreads = new Dictionary<string, Thread>();
+        private Dictionary<string, bool> perfilRunning = new Dictionary<string, bool>();
         public MainForm()
         {
             RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, 6, (int)Keys.F12);
@@ -209,7 +211,6 @@ namespace LordsMobile
             {
                 //Bot.stop();
                 //theBot.Join();
-                Bot.stop();
                 theBot.Abort();
                 //MEmuManager.killAll();
                 //MEmuManager.instances = null;
@@ -264,6 +265,42 @@ namespace LordsMobile
             }
         }
 
+        //private void StartPerfil_Click(object sender, EventArgs e)
+        //{
+        //    var btn = sender as Button;
+        //    var profile = btn.Tag as VmProfile;
+
+        //    if (profile == null)
+        //        return;
+
+        //    // Garante que ainda há espaço
+        //    if (MEmuManager.getRunningAmount() >= Settings.maxVMs)
+        //    {
+        //        StatusUpdate($"Limite de VMs atingido.");
+        //        return;
+        //    }
+
+        //    int pId = MEmuManager.startSpecificVM(profile.VmName);
+        //    if (pId == -1)
+        //    {
+        //        StatusUpdate($"Erro ao iniciar VM para {profile.PlayerName}");
+        //        return;
+        //    }
+
+        //    State st = new State(MEmuManager.getHandle(pId));
+        //    st.processIndex = pId;
+
+        //    Settings.namePrefix = profile.PlayerName; // vincula o nome
+        //    Settings.guildName = "SuaGuilda";         // pode ajustar por perfil depois
+
+        //    Thread botThread = new Thread(() => Bot.startForProfile(st));
+        //    botThread.Start();
+        //    Thread shieldCheck = new Thread(() => Bot.Sentinel(st));
+        //    shieldCheck.Start();
+
+        //    StatusUpdate($"Bot iniciado para {profile.PlayerName}");
+        //}
+
         private void StartPerfil_Click(object sender, EventArgs e)
         {
             var btn = sender as Button;
@@ -272,32 +309,58 @@ namespace LordsMobile
             if (profile == null)
                 return;
 
-            // Garante que ainda há espaço
-            if (MEmuManager.getRunningAmount() >= Settings.maxVMs)
+            if (!perfilRunning.ContainsKey(profile.VmName))
+                perfilRunning[profile.VmName] = false;
+
+            if (!perfilThreads.ContainsKey(profile.VmName))
+                perfilThreads[profile.VmName] = null;
+
+            if (perfilRunning[profile.VmName] == false)
             {
-                StatusUpdate($"Limite de VMs atingido.");
-                return;
-            }
+                // Iniciar VM
+                profile = MEmuManager.startSpecificVM(profile);
+                if (profile.VmIdProcess == -1)
+                {
+                    StatusUpdate($"Erro ao iniciar VM para {profile.PlayerName}");
+                    return;
+                }
 
-            int pId = MEmuManager.startSpecificVM(profile.VmName);
-            if (pId == -1)
+                State st = new State(MEmuManager.getHandle(profile.VmIdProcess));
+                st.processIndex = profile.VmIdProcess;
+
+                Settings.namePrefix = profile.PlayerName;
+                Settings.guildName = "SuaGuilda";
+
+                Thread botThread = new Thread(() => Bot.startForProfile(st, profile));
+                Thread shieldCheck = new Thread(() => Bot.Sentinel(st));
+                perfilThreads[profile.VmName] = botThread;
+                perfilRunning[profile.VmName] = true;
+
+                botThread.Start();
+                shieldCheck.Start();
+                btn.Text = "Stop";
+                StatusUpdate($"Bot iniciado para {profile.PlayerName}");
+            }
+            else
             {
-                StatusUpdate($"Erro ao iniciar VM para {profile.PlayerName}");
-                return;
+                try
+                {
+                    if (perfilThreads[profile.VmName] != null && perfilThreads[profile.VmName].IsAlive)
+                    {
+                        perfilThreads[profile.VmName].Abort(); // ⚠️ ou implemente um cancelamento mais seguro
+                        perfilThreads[profile.VmName] = null;
+                        Bot.DisableSentinel();
+                    }
+                    perfilRunning[profile.VmName] = false;
+                    btn.Text = "Start";
+                    StatusUpdate($"Bot encerrado para {profile.PlayerName}");
+                }
+                catch (Exception ex)
+                {
+                    StatusUpdate($"Erro ao parar o bot: {ex.Message}");
+                }
             }
-
-            State st = new State(MEmuManager.getHandle(pId));
-            st.processIndex = pId;
-
-            Settings.namePrefix = profile.PlayerName; // vincula o nome
-            Settings.guildName = "SuaGuilda";         // pode ajustar por perfil depois
-
-            Thread botThread = new Thread(() => Bot.startForProfile(st));
-            botThread.Start();
-            Thread shieldCheck = new Thread(() => Bot.Sentinel(st));
-            shieldCheck.Start();
-
-            StatusUpdate($"Bot iniciado para {profile.PlayerName}");
         }
+
     }
 }
